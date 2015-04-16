@@ -27,11 +27,11 @@ def DFT(X):
 		Y+=[YNew]
 	return Y
 
-def test():
-	print "All zeroes ", FFT([0]*16)==DFT([0]*16)
-	print "All ones ", FFT([1]*16),DFT([1]*16)
-	print "Alternate -1 and 1 ", FFT([(-1)**k for k in range(16)]),DFT([(-1)**k for k in range(16)])
-	print "Exp ", FFT([cmath.exp(8j*2*cmath.pi*k/16) for k in range(16)]),DFT([cmath.exp(8j*2*cmath.pi*k/16) for k in range(16)])
-
-
-test()
+#def test():
+#	print "All zeroes ", FFT([0]*16)==DFT([0]*16)
+#	print "All ones ", FFT([1]*16),DFT([1]*16)
+#	print "Alternate -1 and 1 ", FFT([(-1)**k for k in range(16)]),DFT([(-1)**k for k in range(16)])
+#	print "Exp ", FFT([cmath.exp(8j*2*cmath.pi*k/16) for k in range(16)]),DFT([cmath.exp(8j*2*cmath.pi*k/16) for k in range(16)])
+#
+#
+#test()
