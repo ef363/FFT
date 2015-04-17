@@ -3,14 +3,15 @@
 #use the naive DFT to compute its DFT.  For example, if L has length 24,
 #it will only use the naive DFT for lists of length 3.
 
+#In addition, if the length is <= 8, it uses the naive DFT since the 
+#running time is better for small lengths.
+
 import cmath
 
 def FFT(X):
 	N = len(X)
-	if N%2!= 0:
+	if N%2!= 0 or N<=8:
 		return DFT(X)
-	if N==1:
-		return X
 	evens = FFT(X[0::2])
 	odds = FFT(X[1::2])
 	Y = range(N)
