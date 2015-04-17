@@ -33,12 +33,32 @@ class TestFFT(unittest.TestCase):
         e = [cmath.exp(8j*2*cmath.pi*k/(2**10)) for k in range((2**10))]
         self.almostEqualArrays(fft.FFT(e), fft.DFT(e))
 
-
-
     def almostEqualArrays(self, v1, v2):
         self.assertEqual(len(v1), len(v2))
         for i in range(len(v1)):
             self.assertAlmostEqual(v1[i],v2[i])
+
+
+class TestDFT(unittest.TestCase):
+    def testAllZeros(self):
+        self.almostEqualArrays([0]*8, fft.DFT([0]*8))
+
+    def testAllOnes(self):
+        self.almostEqualArrays([8]+[0]*7, fft.DFT([1]*8))
+
+    def testAlternating(self):
+        self.almostEqualArrays([0]*4+[8]+[0]*3, fft.DFT([(-1)**k for k in range(8)]))
+
+    def testExp(self):
+        e = [cmath.exp(2j*2*cmath.pi*k/(8)) for k in range(8)]
+        self.almostEqualArrays([0]*2+[8]+[0]*5, fft.DFT(e))
+    
+    def almostEqualArrays(self, v1, v2):
+        self.assertEqual(len(v1), len(v2))
+        for i in range(len(v1)):
+            self.assertAlmostEqual(v1[i],v2[i])
+
+    
 
 
 
@@ -52,6 +72,11 @@ def suite():
     suite.addTest(TestFFT('testAllOnesBig'))
     suite.addTest(TestFFT('testAlternatingBig'))
     suite.addTest(TestFFT('testExpBig'))
+
+    suite.addTest(TestDFT('testAllZeros'))
+    suite.addTest(TestDFT('testAllOnes'))
+    suite.addTest(TestDFT('testAlternating'))
+    suite.addTest(TestDFT('testExp'))
     return suite
 
 unittest.TextTestRunner(verbosity=2).run(suite())
