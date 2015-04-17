@@ -1,9 +1,14 @@
-#FFT takes in an input X that we assume to have length equal to a power of 2
+#FFT takes in an input X.  It will use the Cooley-Tukey algorithm to 
+#compute the DFT of X.  When it enounters a list of odd length, it will
+#use the naive DFT to compute its DFT.  For example, if L has length 24,
+#it will only use the naive DFT for lists of length 3.
 
 import cmath
 
 def FFT(X):
 	N = len(X)
+	if N%2!= 0:
+		return DFT(X)
 	if N==1:
 		return X
 	evens = FFT(X[0::2])
