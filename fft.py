@@ -8,9 +8,11 @@
 
 import cmath
 
+RECURSION_LIMIT = 8 # Cut-off point for using DFT (found empirically)
+
 def FFT(X):
 	N = len(X)
-	if N%2!= 0 or N<=8:
+	if N%2 != 0 or N <= RECURSION_LIMIT:
 		return DFT(X)
 	evens = FFT(X[0::2])
 	odds = FFT(X[1::2])
@@ -19,7 +21,7 @@ def FFT(X):
 	Twiddle = 1
 	# Twiddle should equal cmath.exp(-2*cmath.pi*k*1j/N) in run k
 	for k in range(N/2):
-		Y[k]=evens[k] + Twiddle * odds[k]
+		Y[k] = evens[k] + Twiddle * odds[k]
 		Y[k+N/2] = evens[k] - Twiddle * odds[k]
 		Twiddle *= w
 	return Y
@@ -33,5 +35,5 @@ def DFT(X):
 		YNew = 0
 		for n in range(N):
 			YNew += X[n]*cmath.exp(-2*cmath.pi*1j*k*n/N)
-		Y+=[YNew]
+		Y += [YNew]
 	return Y
