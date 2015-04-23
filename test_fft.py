@@ -6,7 +6,7 @@ import cmath
 
 class TestFFT(unittest.TestCase):
     def testAllZerosSmall(self):
-        self.assertEqual(fft.FFT([0]*16), fft.DFT([0]*16))
+        self.almostEqualArrays(fft.FFT([0]*16), fft.DFT([0]*16))
 
     def testAllOnesSmall(self):
         self.almostEqualArrays(fft.FFT([1]*16), fft.DFT([1]*16))
@@ -20,7 +20,7 @@ class TestFFT(unittest.TestCase):
         self.almostEqualArrays(fft.FFT(e), fft.DFT(e))
 
     def testAllZerosBig(self):
-        self.assertEqual(fft.FFT([0]*(2**10)), fft.DFT([0]*(2**10)))
+        self.almostEqualArrays(fft.FFT([0]*(2**10)), fft.DFT([0]*(2**10)))
 
     def testAllOnesBig(self):
         self.almostEqualArrays(fft.FFT([1]*(2**10)), fft.DFT([1]*(2**10)))
