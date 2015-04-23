@@ -7,6 +7,7 @@
 #running time is better for small lengths.
 
 import cmath
+import numpy as np
 
 RECURSION_LIMIT = 8 # Cut-off point for using DFT (found empirically)
 
@@ -16,7 +17,7 @@ def FFT(X):
 		return DFT(X)
 	evens = FFT(X[0::2])
 	odds = FFT(X[1::2])
-	Y = range(N)
+	Y = np.empty(N, dtype = complex)
 	w = cmath.exp(-2*cmath.pi*1j/N)
 	Twiddle = 1
 	# Twiddle should equal cmath.exp(-2*cmath.pi*k*1j/N) in run k
@@ -28,12 +29,18 @@ def FFT(X):
 
 
 def DFT(X):
-	#This is a naive implementation of the DFT for testing
-	Y = []
+	# This is a naive implementation of the DFT for testing
 	N = len(X)
+	Y = np.empty(N, dtype = complex)
+	# Passes through Y, defining each term
 	for k in range(N):
-		YNew = 0
+		sum = 0
+		# Passes through X
+		w = cmath.exp(-2*cmath.pi*1j*k/N)
+		Twiddle = 1
+		# Twiddle should equal cmath.exp(-2*cmath.pi*n*1j/N) in run n
 		for n in range(N):
-			YNew += X[n]*cmath.exp(-2*cmath.pi*1j*k*n/N)
-		Y += [YNew]
+			sum += X[n]*Twiddle
+			Twiddle *= w
+		Y[k] = sum
 	return Y
