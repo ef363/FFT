@@ -35,9 +35,9 @@ class TestFFT(unittest.TestCase):
         np.testing.assert_allclose(fft.FFT(e), np.fft.fft(e), rtol=0, atol=1e-10)
 
 #testing fails here...fixing
-#    def testCatastrophicAnnihilationFFT(self):
-#	y=[2**55,1,-2**55,1,2**55,1,-2**55,1]
-#	np.testing.assert_allclose(fft.FFT(y), np.fft.fft(y), rtol=10)
+    def testCatastrophicAnnihilationFFT(self):
+	y=[2**52,1,-2**52,1,2**52,1,-2**52,1]
+	np.testing.assert_allclose(fft.FFT(y), np.fft.fft(y))
 
 
 class TestDFT(unittest.TestCase):
