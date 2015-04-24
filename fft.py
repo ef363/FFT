@@ -6,10 +6,12 @@
 #In addition, if the length is <= 8, it uses the naive DFT since the 
 #running time is better for small lengths.
 
+##need to fix floating point
+
 import cmath
 import numpy as np
 
-RECURSION_LIMIT = 8 # Cut-off point for using DFT (found empirically)
+RECURSION_LIMIT = 1 # Cut-off point for using DFT (found empirically)
 
 def FFT(X):
 	N = len(X)
@@ -38,9 +40,10 @@ def DFT(X):
 		# Passes through X
 		w = cmath.exp(-2*cmath.pi*1j*k/N)
 		Twiddle = 1
-		# Twiddle should equal cmath.exp(-2*cmath.pi*n*1j/N) in run n
+		# Twiddle should equal cmath.exp(-2*cmath.pi*kn*1j/N) in run n
 		for n in range(N):
 			sum += X[n]*Twiddle
+		
 			Twiddle *= w
 		Y[k] = sum
 	return Y
