@@ -11,7 +11,7 @@
 import cmath
 import numpy as np
 
-RECURSION_LIMIT = 1 # Cut-off point for using DFT (found empirically)
+RECURSION_LIMIT = 8 # Cut-off point for using DFT (found empirically)
 
 def FFT(X):
 	N = len(X)
@@ -43,7 +43,15 @@ def DFT(X):
 		# Twiddle should equal cmath.exp(-2*cmath.pi*kn*1j/N) in run n
 		for n in range(N):
 			sum += X[n]*Twiddle
-		
-			Twiddle *= w
+			
+			#Update Twiddle for next iteration: check whether we can
+			#simply make it 1 or -1 and avoid floating point error  
+			if (k*(n+1))%N ==0:
+				Twiddle = 1
+			elif (2*k*(n+1))%N ==0:
+				Twiddle = -1
+
+			else:	
+				Twiddle *= w
 		Y[k] = sum
 	return Y
