@@ -44,10 +44,10 @@ def DFT(X):
 	
 		#Track the large real/imaginary numbers and small 
 		#real/imaginary numbers separately to avoid losing floating points
-		big_real_sum = np.empty(0)
-		small_real_sum = np.empty(0)
-		big_imag_sum = np.empty(0)
-		small_imag_sum = np.empty(0)
+		big_real_sum = np.zeros(N, dtype=float)
+		small_real_sum = np.zeros(N, dtype=float)
+		big_imag_sum = np.zeros(N, dtype=float)
+		small_imag_sum = np.zeros(N, dtype=float)
 
 
 		# Passes through X
@@ -61,15 +61,15 @@ def DFT(X):
 			val=X[n]*Twiddle
 			
 			if abs(val.real) >= m:
-				big_real_sum = np.append(big_real_sum,val.real)
+				big_real_sum[n] = val.real
 			else:
-				small_real_sum = np.append(small_real_sum,val.real)
+				small_real_sum[n] = val.real
 			
 
 			if abs(val.imag) >= m:
-				big_imag_sum = np.append(big_imag_sum,val.imag)
+				big_imag_sum[n]= val.imag
 			else:
-				small_imag_sum = np.append(small_imag_sum,val.imag)
+				small_imag_sum[n] = val.imag
 			
 			#Update Twiddle for next iteration: check whether we can
 			#simply make it +-1 or +-i and avoid floating point error  
@@ -102,8 +102,8 @@ def DFT(X):
 def Kahan(V):	
 	s=0
 	c=0
-	for v in V:
-		y=v-c
+	for i in range(len(V)):
+		y=V[i]-c
 		t=s+y
 		c=t-s-y
 		s=t
