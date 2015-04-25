@@ -44,7 +44,12 @@ def DFT(X):
 	
 		#Track the large numbers and small numbers separately
 		#to avoid losing floating points
-		sum = np.zeros(2, dtype=complex)
+		#sum = np.zeros(2, dtype=complex)
+		big_real_sum = np.empty(0)
+		small_real_sum = np.empty(0)
+		big_imag_sum = np.empty(0)
+		small_imag_sum = np.empty(0)
+
 
 		# Passes through X
 		w = cmath.exp(-2*cmath.pi*1j*k/N)
@@ -53,11 +58,17 @@ def DFT(X):
 		for n in range(N):
 
 			val=X[n]*Twiddle
-			if abs(val) >= m:
-				sum[0]+=val
-			else:
-				sum[1]+=val
 			
+			if abs(val.real) >= m:
+				big_real_sum = np.append(big_real_sum,val.real)
+			else:
+				small_real_sum = np.append(small_real_sum,val.real)
+			
+
+			if abs(val.imag) >= m:
+				big_imag_sum = np.append(big_imag_sum,val.imag)
+			else:
+				small_imag_sum = np.append(small_imag_sum,val.imag)
 			
 			#Update Twiddle for next iteration: check whether we can
 			#simply make it +-1 or +-i and avoid floating point error  
@@ -81,5 +92,8 @@ def DFT(X):
 			else:	
 				Twiddle *= w
 #		print sum
-		Y[k] = sum[0]+sum[1]
+		print big_real_sum
+		print small_real_sum
+
+		Y[k] = sum(big_real_sum)+sum(small_real_sum)+(sum(big_imag_sum)+sum(small_imag_sum))*1j
 	return Y
