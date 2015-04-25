@@ -42,9 +42,8 @@ def DFT(X):
 	# Passes through Y, defining each term
 	for k in range(N):
 	
-		#Track the large numbers and small numbers separately
-		#to avoid losing floating points
-		#sum = np.zeros(2, dtype=complex)
+		#Track the large real/imaginary numbers and small 
+		#real/imaginary numbers separately to avoid losing floating points
 		big_real_sum = np.empty(0)
 		small_real_sum = np.empty(0)
 		big_imag_sum = np.empty(0)
@@ -54,6 +53,8 @@ def DFT(X):
 		# Passes through X
 		w = cmath.exp(-2*cmath.pi*1j*k/N)
 		Twiddle = 1
+
+
 		# Twiddle should equal cmath.exp(-2*cmath.pi*kn*1j/N) in run n
 		for n in range(N):
 
@@ -91,9 +92,20 @@ def DFT(X):
 #				Twiddle = 1
 			else:	
 				Twiddle *= w
-#		print sum
-		print big_real_sum
-		print small_real_sum
 
-		Y[k] = sum(big_real_sum)+sum(small_real_sum)+(sum(big_imag_sum)+sum(small_imag_sum))*1j
+
+		Y[k] = Kahan(big_real_sum)+Kahan(small_real_sum)+(Kahan(big_imag_sum)+Kahan(small_imag_sum))*1j
 	return Y
+
+
+#Added Kahan to sum up terms in DFT in order to reduce floating point error
+def Kahan(V):	
+	s=0
+	c=0
+	for v in V:
+		y=v-c
+		t=s+y
+		c=t-s-y
+		s=t
+
+	return s

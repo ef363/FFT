@@ -58,8 +58,20 @@ class TestDFT(unittest.TestCase):
 	   np.testing.assert_allclose(np.fft.fft(y), fft.DFT(y), atol=1e-10)
 
     
+class TestKahan(unittest.TestCase):
+    def testEmpty(self):
+	self.assertEqual(fft.Kahan(np.array([])), 0)
+
+    def testSingle(self):
+	self.assertEqual(fft.Kahan(np.array([cmath.pi])), cmath.pi) 
+
+    def testLarge(self):
+	self.assertAlmostEqual(fft.Kahan(np.array([10000, cmath.pi, cmath.exp(1)])), 10005.8598744820488384738229) 
+
+
 suiteFFT = unittest.TestLoader().loadTestsFromTestCase(TestFFT)
 suiteDFT = unittest.TestLoader().loadTestsFromTestCase(TestDFT)
-allTests = unittest.TestSuite([suiteFFT,suiteDFT])
+suiteKahan = unittest.TestLoader().loadTestsFromTestCase(TestKahan)
+allTests = unittest.TestSuite([suiteFFT,suiteDFT, suiteKahan])
 
 unittest.TextTestRunner(verbosity=2).run(allTests)
