@@ -58,7 +58,7 @@ def DFT(X):
 		# Twiddle should equal cmath.exp(-2*cmath.pi*kn*1j/N) in run n
 		for n in range(N):
 
-			val=X[n]*Twiddle
+			val = X[n]*Twiddle
 			
 			if abs(val.real) >= m:
 				big_real_sum[n] = val.real
@@ -67,45 +67,35 @@ def DFT(X):
 			
 
 			if abs(val.imag) >= m:
-				big_imag_sum[n]= val.imag
+				big_imag_sum[n] = val.imag
 			else:
 				small_imag_sum[n] = val.imag
 			
 			#Update Twiddle for next iteration: check whether we can
-			#simply make it +-1 or +-i and avoid floating point error  
-			if (k*(n+1))%N ==0:
+			#simply make it +/-1 or +/-i and avoid floating point error  
+			u = (4*k*(n+1))%(4*N)
+			if u == 0:
 				Twiddle = 1
-			elif (2*k*(n+1))%N ==0:
+			elif u == N:
+				Twiddle = -1j
+			elif u == 2*N:
 				Twiddle = -1
-			elif (4*k*(n+1)-3*N)%(4*N)==0:
+			elif u == 3*N:
 				Twiddle = 1j
-			elif (4*k*(n+1)-N)%(4*N)==0:
-				Twiddle= -1j
-#			u = (4*k*n)%(4*N)
-#			if u == N:
-#				Twiddle = 1j
-#			elif u == 2*N:
-#				Twiddle = -1
-#			elif u == 3*N:
-#				Twiddle = -1j
-#			elif u == 0:
-#				Twiddle = 1
 			else:	
 				Twiddle *= w
 
-
-		Y[k] = Kahan(big_real_sum)+Kahan(small_real_sum)+(Kahan(big_imag_sum)+Kahan(small_imag_sum))*1j
+		Y[k] = Kahan(big_real_sum) + Kahan(small_real_sum) + (Kahan(big_imag_sum) + Kahan(small_imag_sum))*1j
 	return Y
 
 
 #Added Kahan to sum up terms in DFT in order to reduce floating point error
 def Kahan(V):	
-	s=0
-	c=0
+	s = 0
+	c = 0
 	for i in range(len(V)):
-		y=V[i]-c
-		t=s+y
-		c=t-s-y
-		s=t
-
+		y = V[i] - c
+		t = s + y
+		c = t - s - y
+		s = t
 	return s
