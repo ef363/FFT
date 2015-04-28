@@ -57,21 +57,57 @@ class TestDFT(unittest.TestCase):
 	   y=np.array([2**55,1,-2**55])
 	   np.testing.assert_allclose(np.fft.fft(y), fft.DFT(y), atol=1e-10)
 
-    
-class TestKahan(unittest.TestCase):
+class TestIFFT(unittest.TestCase):
     def testEmpty(self):
-	self.assertEqual(fft.Kahan(np.array([])), 0)
+        self.assertEqual(fft.IFFT(np.array([])), np.array([]))
 
     def testSingle(self):
-	self.assertEqual(fft.Kahan(np.array([cmath.pi])), cmath.pi) 
+        self.assertEqual(fft.IFFT(np.array([1])), 1) 
+
+    def testAllZerosSmall(self):
+        np.testing.assert_allclose(fft.IFFT(np.zeros(16)), np.fft.ifft(np.zeros(16)), atol=1e-10)
+
+    def testAllOnesSmall(self):
+        np.testing.assert_allclose(fft.IFFT(np.ones(16)), np.fft.ifft(np.ones(16)), atol=1e-10)
+
+    def testAlternatingSmall(self):
+        x = np.array([(-1)**k for k in range(16)])
+        np.testing.assert_allclose(fft.IFFT(x), np.fft.ifft(x),  atol=1e-10)
+
+    def testExpSmall(self):
+        e = np.array([cmath.exp(8j*2*cmath.pi*k/16) for k in range(16)])
+        np.testing.assert_allclose(fft.IFFT(e), np.fft.ifft(e),  atol=1e-10)
+
+    def testAllZerosBig(self):
+        np.testing.assert_allclose(fft.IFFT(np.zeros(2**10)), np.fft.ifft(np.zeros(2**10)), atol=1e-10)
+
+    def testAllOnesBig(self):
+        np.testing.assert_allclose(fft.IFFT(np.ones(2**10)), np.fft.ifft(np.ones(2**10)),  atol=1e-10)
+
+    def testAlternatingBig(self):
+        x = np.array([(-1)**k for k in range((2**10))])
+        np.testing.assert_allclose(fft.IFFT(x), np.fft.ifft(x), atol=1e-10)
+
+    def testExpBig(self):
+        e = np.array([cmath.exp(8j*2*cmath.pi*k/(2**10)) for k in range((2**10))])
+        np.testing.assert_allclose(fft.IFFT(e), np.fft.ifft(e), atol=1e-10)
+
+
+class TestKahan(unittest.TestCase):
+    def testEmpty(self):
+	   self.assertEqual(fft.Kahan(np.array([])), 0)
+
+    def testSingle(self):
+	   self.assertEqual(fft.Kahan(np.array([cmath.pi])), cmath.pi) 
 
     def testLarge(self):
-	self.assertAlmostEqual(fft.Kahan(np.array([10000, cmath.pi, cmath.exp(1)])), 10005.8598744820488384738229) 
+	   self.assertAlmostEqual(fft.Kahan(np.array([10000, cmath.pi, cmath.exp(1)])), 10005.8598744820488384738229) 
 
 
 suiteFFT = unittest.TestLoader().loadTestsFromTestCase(TestFFT)
 suiteDFT = unittest.TestLoader().loadTestsFromTestCase(TestDFT)
+suiteIFFT = unittest.TestLoader().loadTestsFromTestCase(TestIFFT)
 suiteKahan = unittest.TestLoader().loadTestsFromTestCase(TestKahan)
-allTests = unittest.TestSuite([suiteFFT,suiteDFT, suiteKahan])
+allTests = unittest.TestSuite([suiteFFT,suiteDFT, suiteIFFT, suiteKahan])
 
 unittest.TextTestRunner(verbosity=2).run(allTests)

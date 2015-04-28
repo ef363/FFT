@@ -109,6 +109,11 @@ def DFT(X):
 		Y[k] = Kahan(big_real_sum) + Kahan(small_real_sum) + (Kahan(big_imag_sum) + Kahan(small_imag_sum))*1j
 	return Y
 
+def IFFT(Y):
+	N = max(1, len(Y)) # length zero arrays should still be possible
+	X_conj = (1./N)* FFT(np.conjugate(Y))
+	X = np.conjugate(X_conj)
+	return X
 
 #Added Kahan to sum up terms in DFT in order to reduce floating point error
 def Kahan(V):	
