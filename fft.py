@@ -15,19 +15,42 @@ RECURSION_LIMIT = 8 # Cut-off point for using DFT (found empirically)
 
 def FFT(X):
 	N = len(X)
-	if N%2 != 0 or N <= RECURSION_LIMIT:
+	if N <= RECURSION_LIMIT:
 		return DFT(X)
-	evens = FFT(X[0::2])
-	odds = FFT(X[1::2])
-	Y = np.empty(N, dtype = complex)
-	w = cmath.exp(-2*cmath.pi*1j/N)
-	Twiddle = 1
-	# Twiddle should equal cmath.exp(-2*cmath.pi*k*1j/N) in run k
-	for k in range(N/2):
-		Y[k] = evens[k] + Twiddle * odds[k]
-		Y[k+N/2] = evens[k] - Twiddle * odds[k]
-		Twiddle *= w
-	return Y
+	elif N%4 == 0: # Attempt split-radix FFT
+		evens = FFT(X[0::2])
+		odds_mod1 = FFT(X[1::4])
+		odds_mod3 = FFT(X[3::4])
+		Y = np.empty(N, dtype = complex)
+		w_mod1 = cmath.exp(-2*cmath.pi*1j/N)
+		Twiddle_mod1 = 1
+		w_mod3 = cmath.exp(-6*cmath.pi*1j/N)
+		Twiddle_mod3 = 1
+		# Twiddle_mod1 should equal cmath.exp(-2*cmath.pi*k*1j/N) in run k
+		# Twiddle_mod3 should equal cmath.exp(-2*cmath.pi*3*k*1j/N) in run k
+		for k in range(N/4):
+			Y[k] = evens[k] + Twiddle_mod1*odds_mod1[k] + Twiddle_mod3*odds_mod3[k]
+			Y[k + N/2] = evens[k] - (Twiddle_mod1*odds_mod1[k] + Twiddle_mod3*odds_mod3[k])
+			Y[k + N/4] = evens[k + N/4] - 1j*(Twiddle_mod1*odds_mod1[k] - Twiddle_mod3*odds_mod3[k])
+			Y[k + 3*N/4] = evens[k + N/4] + 1j*(Twiddle_mod1*odds_mod1[k] - Twiddle_mod3*odds_mod3[k])
+			Twiddle_mod1 *= w_mod1
+			Twiddle_mod3 *= w_mod3
+		return Y
+	elif N%2 == 0: # Attempt 2-radix FFT
+		evens = FFT(X[0::2])
+		odds = FFT(X[1::2])
+		Y = np.empty(N, dtype = complex)
+		w = cmath.exp(-2*cmath.pi*1j/N)
+		Twiddle = 1
+		# Twiddle should equal cmath.exp(-2*cmath.pi*k*1j/N) in run k
+		for k in range(N/2):
+			Y[k] = evens[k] + Twiddle * odds[k]
+			Y[k + N/2] = evens[k] - Twiddle * odds[k]
+			Twiddle *= w
+		return Y
+	else:
+		return DFT(X)
+	
 
 
 def DFT(X):
@@ -49,8 +72,6 @@ def DFT(X):
 		big_imag_sum = np.zeros(N, dtype=float)
 		small_imag_sum = np.zeros(N, dtype=float)
 
-
-		# Passes through X
 		w = cmath.exp(-2*cmath.pi*1j*k/N)
 		Twiddle = 1
 
