@@ -5,6 +5,8 @@ import unittest
 import cmath
 import numpy as np
 
+np.random.seed(17)
+
 class TestFFT(unittest.TestCase):
     def testAllZerosSmall(self):
         np.testing.assert_allclose(fft.FFT(np.zeros(16)), np.fft.fft(np.zeros(16)), atol=1e-10)
@@ -58,8 +60,8 @@ class TestDFT(unittest.TestCase):
 	   np.testing.assert_allclose(np.fft.fft(y), fft.DFT(y), atol=1e-10)
 
 class TestIFFT(unittest.TestCase):
-    def testEmpty(self):
-        self.assertEqual(fft.IFFT(np.array([])), np.array([]))
+    # def testEmpty(self):
+    #     self.assertEqual(fft.IFFT(np.array([])), np.array([]))
 
     def testSingle(self):
         self.assertEqual(fft.IFFT(np.array([1])), 1) 
@@ -91,6 +93,22 @@ class TestIFFT(unittest.TestCase):
     def testExpBig(self):
         e = np.array([cmath.exp(8j*2*cmath.pi*k/(2**10)) for k in range((2**10))])
         np.testing.assert_allclose(fft.IFFT(e), np.fft.ifft(e), atol=1e-10)
+class TestFFTandIFFT(unittest.TestCase):
+    def testSmallRandom(self):
+        real=np.random.rand(2**4)
+        imaginary = np.random.rand(2**4)
+        x = real + 1j*imaginary
+        np.testing.assert_allclose(x,fft.IFFT(fft.FFT(x)))
+        np.testing.assert_allclose(x,fft.FFT(fft.IFFT(x)))
+
+    def testBigRandom(self):
+        real=np.random.rand(2**15)
+        imaginary = np.random.rand(2**15)
+        x = real + 1j*imaginary
+        np.testing.assert_allclose(x,fft.IFFT(fft.FFT(x)))
+        np.testing.assert_allclose(x,fft.FFT(fft.IFFT(x)))
+        
+
 
 
 class TestKahan(unittest.TestCase):
@@ -107,7 +125,8 @@ class TestKahan(unittest.TestCase):
 suiteFFT = unittest.TestLoader().loadTestsFromTestCase(TestFFT)
 suiteDFT = unittest.TestLoader().loadTestsFromTestCase(TestDFT)
 suiteIFFT = unittest.TestLoader().loadTestsFromTestCase(TestIFFT)
+suiteFFTandIFFT = unittest.TestLoader().loadTestsFromTestCase(TestFFTandIFFT)
 suiteKahan = unittest.TestLoader().loadTestsFromTestCase(TestKahan)
-allTests = unittest.TestSuite([suiteFFT,suiteDFT, suiteIFFT, suiteKahan])
+allTests = unittest.TestSuite([suiteFFT,suiteDFT, suiteIFFT, suiteFFTandIFFT, suiteKahan])
 
 unittest.TextTestRunner(verbosity=2).run(allTests)
