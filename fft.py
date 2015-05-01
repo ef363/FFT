@@ -15,12 +15,33 @@ RECURSION_LIMIT = 8 # Cut-off point for using DFT (found empirically)
 
 def FFT(X):
 	N = len(X)
+	powerOfTwo = 2**(int.bit_length(N-1))
+	difference = powerOfTwo - N
+	X=np.append(X, np.zeros(difference))
+	return FFT_powerOfTwo(X)
+
+
+# IFFT expects X to be a power of two (for it to use the fast FFT algorithm).
+# N is the desired lenth (so it will remove excess digits)
+def IFFT(X, N = -1):
+	if N == -1:
+		N = len(X)
+	naive_IFFT = IFFT_powerOfTwo(X)
+	return naive_IFFT[:N]
+
+
+
+
+
+#   HELPER CODE
+def FFT_powerOfTwo(X):
+	N = len(X)
 	if N <= RECURSION_LIMIT:
 		return DFT(X)
 	elif N%4 == 0: # Attempt split-radix FFT
-		evens = FFT(X[0::2])
-		odds_mod1 = FFT(X[1::4])
-		odds_mod3 = FFT(X[3::4])
+		evens = FFT_powerOfTwo(X[0::2])
+		odds_mod1 = FFT_powerOfTwo(X[1::4])
+		odds_mod3 = FFT_powerOfTwo(X[3::4])
 		Y = np.empty(N, dtype = complex)
 		w_mod1 = cmath.exp(-2*cmath.pi*1j/N)
 		Twiddle_mod1 = 1
@@ -37,8 +58,8 @@ def FFT(X):
 			Twiddle_mod3 *= w_mod3
 		return Y
 	elif N%2 == 0: # Attempt 2-radix FFT
-		evens = FFT(X[0::2])
-		odds = FFT(X[1::2])
+		evens = FFT_powerOfTwo(X[0::2])
+		odds = FFT_powerOfTwo(X[1::2])
 		Y = np.empty(N, dtype = complex)
 		w = cmath.exp(-2*cmath.pi*1j/N)
 		Twiddle = 1
@@ -109,9 +130,9 @@ def DFT(X):
 		Y[k] = Kahan(big_real_sum) + Kahan(small_real_sum) + (Kahan(big_imag_sum) + Kahan(small_imag_sum))*1j
 	return Y
 
-def IFFT(Y):
+def IFFT_powerOfTwo(Y):
 	N = max(1, len(Y)) # length zero arrays should still be possible
-	X_conj = (1./N)* FFT(np.conjugate(Y))
+	X_conj = (1./N)* FFT_powerOfTwo(np.conjugate(Y))
 	X = np.conjugate(X_conj)
 	return X
 

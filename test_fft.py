@@ -37,8 +37,13 @@ class TestFFT(unittest.TestCase):
         np.testing.assert_allclose(fft.FFT(e), np.fft.fft(e), atol=1e-10)
 
     def testCatastrophicAnnihilationFFT(self):
-	y=[2**52,1,-2**52,1,2**52,1,-2**52,1]
-	np.testing.assert_allclose(fft.FFT(y), np.fft.fft(y), atol=1e-10)
+	   y=[2**52,1,-2**52,1,2**52,1,-2**52,1]
+	   np.testing.assert_allclose(fft.FFT(y), np.fft.fft(y), atol=1e-10)
+
+    def testNonPowerOfTwo(self):
+        y = np.array([(-1)**k for k in range(6)])
+        answer = np.fft.fft(np.append(y, [0,0]))
+        np.testing.assert_allclose(fft.FFT(y), answer)
 
 
 class TestDFT(unittest.TestCase):
@@ -58,6 +63,11 @@ class TestDFT(unittest.TestCase):
     def testCatastrophicAnnihilationDFT(self):
 	   y=np.array([2**55,1,-2**55])
 	   np.testing.assert_allclose(np.fft.fft(y), fft.DFT(y), atol=1e-10)
+
+    def testNonPowerOfTwo(self):
+        y = np.array([(-1)**k for k in range(6)])
+        answer = np.fft.fft(y)
+        np.testing.assert_allclose(fft.DFT(y), answer, atol =1e-10)
 
 class TestIFFT(unittest.TestCase):
     # def testEmpty(self):
@@ -93,6 +103,12 @@ class TestIFFT(unittest.TestCase):
     def testExpBig(self):
         e = np.array([cmath.exp(8j*2*cmath.pi*k/(2**10)) for k in range((2**10))])
         np.testing.assert_allclose(fft.IFFT(e), np.fft.ifft(e), atol=1e-10)
+
+    def testNonPowerOfTwo(self):
+        y = np.array([(-1)**k for k in range(17)])
+        x = np.fft.fft(np.append(y, np.zeros(15)))
+
+        np.testing.assert_allclose(fft.IFFT(x,17), y)
 class TestFFTandIFFT(unittest.TestCase):
     def testSmallRandom(self):
         real=np.random.rand(2**4)
@@ -107,6 +123,12 @@ class TestFFTandIFFT(unittest.TestCase):
         x = real + 1j*imaginary
         np.testing.assert_allclose(x,fft.IFFT(fft.FFT(x)))
         np.testing.assert_allclose(x,fft.FFT(fft.IFFT(x)))
+
+    def testSmallRandomNonPowerOfTwo(self):
+        real=np.random.rand(7**4)
+        imaginary = np.random.rand(7**4)
+        x = real + 1j*imaginary
+        np.testing.assert_allclose(x,fft.IFFT(fft.FFT(x), 7**4))
         
 
 
