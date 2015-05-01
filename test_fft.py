@@ -107,30 +107,41 @@ class TestIFFT(unittest.TestCase):
     def testNonPowerOfTwo(self):
         y = np.array([(-1)**k for k in range(17)])
         x = np.fft.fft(np.append(y, np.zeros(15)))
+        np.testing.assert_allclose(fft.IFFT(x,17), y, atol=1e-10)
 
-        np.testing.assert_allclose(fft.IFFT(x,17), y)
 class TestFFTandIFFT(unittest.TestCase):
     def testSmallRandom(self):
         real=np.random.rand(2**4)
         imaginary = np.random.rand(2**4)
         x = real + 1j*imaginary
-        np.testing.assert_allclose(x,fft.IFFT(fft.FFT(x)))
-        np.testing.assert_allclose(x,fft.FFT(fft.IFFT(x)))
+        np.testing.assert_allclose(x,fft.IFFT(fft.FFT(x)), atol=1e-10)
+        np.testing.assert_allclose(x,fft.FFT(fft.IFFT(x)), atol=1e-10)
 
     def testBigRandom(self):
-        real=np.random.rand(2**15)
-        imaginary = np.random.rand(2**15)
+        real=np.random.rand(2**12)
+        imaginary = np.random.rand(2**12)
         x = real + 1j*imaginary
-        np.testing.assert_allclose(x,fft.IFFT(fft.FFT(x)))
-        np.testing.assert_allclose(x,fft.FFT(fft.IFFT(x)))
+        np.testing.assert_allclose(x,fft.IFFT(fft.FFT(x)), atol=1e-10)
+        np.testing.assert_allclose(x,fft.FFT(fft.IFFT(x)), atol=1e-10)
 
     def testSmallRandomNonPowerOfTwo(self):
         real=np.random.rand(7**4)
         imaginary = np.random.rand(7**4)
         x = real + 1j*imaginary
-        np.testing.assert_allclose(x,fft.IFFT(fft.FFT(x), 7**4))
+        np.testing.assert_allclose(x,fft.IFFT(fft.FFT(x), 7**4), atol=1e-10)
         
-
+class TestUpdateTwiddle(unittest.TestCase):
+    def test2RadixTwiddle(self):
+        Twiddle = 1
+        for k in range(32):
+            self.assertAlmostEqual(Twiddle, cmath.exp(-2*cmath.pi*k*1j/32))
+            Twiddle = fft.UpdateTwiddle(Twiddle,k,32,1)
+            
+    def testSplitRadixMod3Twiddle(self):
+        Twiddle = 1
+        for k in range(32):
+            self.assertAlmostEqual(Twiddle, cmath.exp(-6*cmath.pi*k*1j/32),)
+            Twiddle = fft.UpdateTwiddle(Twiddle,k,32,3)
 
 
 class TestKahan(unittest.TestCase):
@@ -148,7 +159,8 @@ suiteFFT = unittest.TestLoader().loadTestsFromTestCase(TestFFT)
 suiteDFT = unittest.TestLoader().loadTestsFromTestCase(TestDFT)
 suiteIFFT = unittest.TestLoader().loadTestsFromTestCase(TestIFFT)
 suiteFFTandIFFT = unittest.TestLoader().loadTestsFromTestCase(TestFFTandIFFT)
+suiteUpdateTwiddle = unittest.TestLoader().loadTestsFromTestCase(TestUpdateTwiddle)
 suiteKahan = unittest.TestLoader().loadTestsFromTestCase(TestKahan)
-allTests = unittest.TestSuite([suiteFFT,suiteDFT, suiteIFFT, suiteFFTandIFFT, suiteKahan])
+allTests = unittest.TestSuite([suiteFFT,suiteDFT, suiteIFFT, suiteFFTandIFFT, suiteUpdateTwiddle, suiteKahan])
 
 unittest.TextTestRunner(verbosity=2).run(allTests)
