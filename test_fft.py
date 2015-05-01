@@ -133,15 +133,15 @@ class TestFFTandIFFT(unittest.TestCase):
 class TestUpdateTwiddle(unittest.TestCase):
     def test2RadixTwiddle(self):
         Twiddle = 1
-        for k in range(32):
-            self.assertAlmostEqual(Twiddle, cmath.exp(-2*cmath.pi*k*1j/32))
-            Twiddle = fft.UpdateTwiddle(Twiddle,k,32,1)
+        for k in range(2**10):
+            self.assertAlmostEqual(Twiddle, cmath.exp(-2*cmath.pi*k*1j/2**10))
+            Twiddle = fft.UpdateTwiddle(Twiddle,k,2**10,1)
             
     def testSplitRadixMod3Twiddle(self):
         Twiddle = 1
-        for k in range(32):
-            self.assertAlmostEqual(Twiddle, cmath.exp(-6*cmath.pi*k*1j/32),)
-            Twiddle = fft.UpdateTwiddle(Twiddle,k,32,3)
+        for k in range(2**10):
+            self.assertAlmostEqual(Twiddle, cmath.exp(-6*cmath.pi*k*1j/2**10),)
+            Twiddle = fft.UpdateTwiddle(Twiddle,k,2**10,3)
 
 
 class TestKahan(unittest.TestCase):

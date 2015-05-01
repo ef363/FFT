@@ -39,9 +39,8 @@ def FFT_powerOfTwo(X):
 		odds_mod1 = FFT_powerOfTwo(X[1::4])
 		odds_mod3 = FFT_powerOfTwo(X[3::4])
 		Y = np.empty(N, dtype = complex)
-		w_mod1 = cmath.exp(-2*cmath.pi*1j/N)
+		
 		Twiddle_mod1 = 1
-		w_mod3 = cmath.exp(-6*cmath.pi*1j/N)
 		Twiddle_mod3 = 1
 		# Twiddle_mod1 should equal cmath.exp(-2*cmath.pi*k*1j/N) in run k
 		# Twiddle_mod3 should equal cmath.exp(-2*cmath.pi*3*k*1j/N) in run k
@@ -50,22 +49,22 @@ def FFT_powerOfTwo(X):
 			Y[k + N/2] = evens[k] - (Twiddle_mod1*odds_mod1[k] + Twiddle_mod3*odds_mod3[k])
 			Y[k + N/4] = evens[k + N/4] - 1j*(Twiddle_mod1*odds_mod1[k] - Twiddle_mod3*odds_mod3[k])
 			Y[k + 3*N/4] = evens[k + N/4] + 1j*(Twiddle_mod1*odds_mod1[k] - Twiddle_mod3*odds_mod3[k])
-			Twiddle_mod1 *= w_mod1
-			Twiddle_mod3 *= w_mod3
-			#Twiddle_mod1 *= UpdateTwiddle(Twiddle_mod1,k,N,1)
-			#Twiddle_mod3 *= UpdateTwiddle(Twiddle_mod3,k,N,3)
+		
+		
+			Twiddle_mod1 = UpdateTwiddle(Twiddle_mod1,k,N,1)
+			Twiddle_mod3 = UpdateTwiddle(Twiddle_mod3,k,N,3)
 		return Y
 	elif N%2 == 0: # Attempt 2-radix FFT
 		evens = FFT_powerOfTwo(X[0::2])
 		odds = FFT_powerOfTwo(X[1::2])
 		Y = np.empty(N, dtype = complex)
-		#w = cmath.exp(-2*cmath.pi*1j/N)
+		
 		Twiddle = 1
 		# Twiddle should equal cmath.exp(-2*cmath.pi*k*1j/N) in run k
 		for k in range(N/2):
 			Y[k] = evens[k] + Twiddle * odds[k]
 			Y[k + N/2] = evens[k] - Twiddle * odds[k]
-			#Twiddle *= w
+		
 			Twiddle = UpdateTwiddle(Twiddle,k,N,1)
 		return Y
 	else:
@@ -92,7 +91,7 @@ def DFT(X):
 		big_imag_sum = np.zeros(N, dtype=float)
 		small_imag_sum = np.zeros(N, dtype=float)
 
-		#w = cmath.exp(-2*cmath.pi*1j*k/N)
+		
 		Twiddle = 1
 
 
@@ -114,17 +113,6 @@ def DFT(X):
 			
 			#Update Twiddle for next iteration: check whether we can
 			#simply make it +/-1 or +/-i and avoid floating point error  
-			# u = (4*k*(n+1))%(4*N)
-			# if u == 0:
-			# 	Twiddle = 1
-			# elif u == N:
-			# 	Twiddle = -1j
-			# elif u == 2*N:
-			# 	Twiddle = -1
-			# elif u == 3*N:
-			# 	Twiddle = 1j
-			# else:	
-			# 	Twiddle *= w
 			Twiddle = UpdateTwiddle(Twiddle,n,N,k)
 
 		Y[k] = Kahan(big_real_sum) + Kahan(small_real_sum) + (Kahan(big_imag_sum) + Kahan(small_imag_sum))*1j
