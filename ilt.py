@@ -1,6 +1,6 @@
 # Inverse Laplace Transform!
 
-# Inputs: fhat - output of laplace transform on function f (fhat is a function?)
+# Inputs: fhat - output of laplace transform on function f (that is a function?)
 #	  delta - step size
 #	  M - a power of 2, length of vector
 #	  lambda - sequence of numbers defined in paper
@@ -8,6 +8,7 @@
 # 	  "backwards" FFT (I'm hoping that means inverse FFT)
 # Output: f(i*delta), i = 0, 1, ..., M-1
 import numpy as np
+import fft
 
 def ILT(fhat, delta, M):
 	# These are their magic numbers
@@ -33,13 +34,8 @@ def ILT(fhat, delta, M):
 	# at this point, beta_sum is sum with k=M2
 	fhat_vect[0] = (beta_sum + beta_sum0)/delta
 
-	# STEP 2 ## THIS PART IS SUPPOSED TO BE SAME AS BACKWARDS FFT!!!!!
-	fl = np.zeros(M2)
-	for l in range(M2):
-		sum  = 0
-		for k in range(M2):
-			sum += fhat_vect(k)*np.cos(2*np.pi*l*k/M2)
-		fl[l] = sum/M2
+	# STEP 2 ## This currently only works efficiently when fl has length equal to a power of two.
+	fl = numpy.real(fft.ifft(fhat_vect))
 
 	# STEP 3
 	f = np.zeros(M)
