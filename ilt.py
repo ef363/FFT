@@ -1,6 +1,6 @@
 # Inverse Laplace Transform!
 
-# Inputs: fhat - output of laplace transform on function f (that is a function?)
+# Inputs: fhat - output of laplace transform on function f (fhat is a lambda function)
 #	  delta - step size
 #	  M - a power of 2, length of vector
 #	  lambda - sequence of numbers defined in paper
@@ -28,7 +28,7 @@ def ILT(fhat, delta, M): # Right now, the function is hardcoded (not really an i
 		for i in range(n/2):
 			# May have floating point division error in next line
 			s = (a+1j*lamb[i]+2*1j*np.pi*k/M2)/delta
-			fhat_mat[i,k] = np.real(1./s) # Hard coding fhat(s) = 1/s for now
+			fhat_mat[i,k] = np.real(fhat(s)) #np.real(1./s) # Hard coding fhat(s) = 1/s for now
 			beta_sum += beta[i]*fhat_mat[i,k]
 		fhat_vect[k] = (2./delta)*beta_sum
 		if k==0: beta_sum0 = beta_sum
