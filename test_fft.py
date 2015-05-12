@@ -7,6 +7,7 @@ import numpy as np
 
 np.random.seed(17)
 
+#----------------------------------------------------------------------------
 class TestFFT(unittest.TestCase):
     def testAllZerosSmall(self):
         np.testing.assert_allclose(fft.FFT(np.zeros(16)), np.fft.fft(np.zeros(16)), atol=1e-10)
@@ -45,7 +46,7 @@ class TestFFT(unittest.TestCase):
         answer = np.fft.fft(np.append(y, [0,0]))
         np.testing.assert_allclose(fft.FFT(y), answer)
 
-
+#----------------------------------------------------------------------------
 class TestDFT(unittest.TestCase):
     def testAllZeros(self):
         np.testing.assert_allclose(np.array([0]*8), fft.DFT(np.array([0]*8)), atol=1e-10)
@@ -69,6 +70,7 @@ class TestDFT(unittest.TestCase):
         answer = np.fft.fft(y)
         np.testing.assert_allclose(fft.DFT(y), answer, atol =1e-10)
 
+#----------------------------------------------------------------------------
 class TestIFFT(unittest.TestCase):
     # def testEmpty(self):
     #     self.assertEqual(fft.IFFT(np.array([])), np.array([]))
@@ -109,6 +111,7 @@ class TestIFFT(unittest.TestCase):
         x = np.fft.fft(np.append(y, np.zeros(15)))
         np.testing.assert_allclose(fft.IFFT(x,17), y, atol=1e-10)
 
+#----------------------------------------------------------------------------
 class TestFFTandIFFT(unittest.TestCase):
     def testSmallRandom(self):
         real=np.random.rand(2**4)
@@ -130,6 +133,7 @@ class TestFFTandIFFT(unittest.TestCase):
         x = real + 1j*imaginary
         np.testing.assert_allclose(x,fft.IFFT(fft.FFT(x), 7**4), atol=1e-10)
         
+#----------------------------------------------------------------------------
 class TestUpdateTwiddle(unittest.TestCase):
     def test2RadixTwiddle(self):
         Twiddle = 1
@@ -144,6 +148,7 @@ class TestUpdateTwiddle(unittest.TestCase):
             Twiddle = fft.UpdateTwiddle(Twiddle,k,2**10,3)
 
 
+#----------------------------------------------------------------------------
 class TestKahan(unittest.TestCase):
     def testEmpty(self):
 	   self.assertEqual(fft.Kahan(np.array([])), 0)
@@ -155,6 +160,7 @@ class TestKahan(unittest.TestCase):
 	   self.assertAlmostEqual(fft.Kahan(np.array([10000, cmath.pi, cmath.exp(1)])), 10005.8598744820488384738229) 
 
 
+#----------------------------------------------------------------------------
 suiteFFT = unittest.TestLoader().loadTestsFromTestCase(TestFFT)
 suiteDFT = unittest.TestLoader().loadTestsFromTestCase(TestDFT)
 suiteIFFT = unittest.TestLoader().loadTestsFromTestCase(TestIFFT)
