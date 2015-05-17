@@ -72,9 +72,6 @@ class TestDFT(unittest.TestCase):
 
 #----------------------------------------------------------------------------
 class TestIFFT(unittest.TestCase):
-    # def testEmpty(self):
-    #     self.assertEqual(fft.IFFT(np.array([])), np.array([]))
-
     def testSingle(self):
         self.assertEqual(fft.IFFT(np.array([1])), 1) 
 
