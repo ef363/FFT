@@ -1,12 +1,10 @@
-#FFT takes in an input X.  It will use the Cooley-Tukey algorithm to 
-#compute the DFT of X.  When it enounters a list of odd length, it will
-#use the naive DFT to compute its DFT.  For example, if L has length 24,
-#it will only use the naive DFT for lists of length 3.
+# FFT takes in an input X.  It will use the Cooley-Tukey algorithm to 
+# compute the DFT of X.  When it enounters a list of odd length, it will
+# use the naive DFT to compute its DFT.  For example, if L has length 24,
+# it will only use the naive DFT for lists of length 3.
 
-#In addition, if the length is <= 8, it uses the naive DFT since the 
-#running time is better for small lengths.
-
-##need to fix floating point
+# In addition, if the length is <= 8, it uses the naive DFT since the 
+# running time is better for small lengths.
 
 import cmath
 import numpy as np
@@ -17,24 +15,14 @@ def FFT(X):
 	N = len(X)
 	powerOfTwo = 2**(int.bit_length(N-1))
 	difference = powerOfTwo - N
-	X=np.append(X, np.zeros(difference))
+	X = np.append(X, np.zeros(difference))
 	return FFT_powerOfTwo(X)
 
-
-# IFFT expects X to be a power of two (for it to use the fast FFT algorithm).
-# N is the desired lenth (so it will remove excess digits)
-def IFFT(X, N = -1):
-	if N == -1:
-		N = len(X)
-	naive_IFFT = IFFT_powerOfTwo(X)
-	return naive_IFFT[:N]
-
-#   HELPER CODE
 def FFT_powerOfTwo(X):
 	N = len(X)
 	if N <= RECURSION_LIMIT:
 		return DFT(X)
-	elif N%4 == 0: # Attempt split-radix FFT
+	elif N%4 == 0: # Split-radix FFT
 		evens = FFT_powerOfTwo(X[0::2])
 		odds_mod1 = FFT_powerOfTwo(X[1::4])
 		odds_mod3 = FFT_powerOfTwo(X[3::4])
@@ -49,12 +37,11 @@ def FFT_powerOfTwo(X):
 			Y[k + N/2] = evens[k] - (Twiddle_mod1*odds_mod1[k] + Twiddle_mod3*odds_mod3[k])
 			Y[k + N/4] = evens[k + N/4] - 1j*(Twiddle_mod1*odds_mod1[k] - Twiddle_mod3*odds_mod3[k])
 			Y[k + 3*N/4] = evens[k + N/4] + 1j*(Twiddle_mod1*odds_mod1[k] - Twiddle_mod3*odds_mod3[k])
-		
-		
+
 			Twiddle_mod1 = UpdateTwiddle(Twiddle_mod1,k,N,1)
 			Twiddle_mod3 = UpdateTwiddle(Twiddle_mod3,k,N,3)
 		return Y
-	elif N%2 == 0: # Attempt 2-radix FFT
+	elif N%2 == 0: # 2-radix FFT
 		evens = FFT_powerOfTwo(X[0::2])
 		odds = FFT_powerOfTwo(X[1::2])
 		Y = np.empty(N, dtype = complex)
@@ -70,62 +57,65 @@ def FFT_powerOfTwo(X):
 	else:
 		return DFT(X)
 	
-
-
 def DFT(X):
 	# This is a naive implementation of the DFT for testing
 
-	#To account for catastrophic annihilation when input
-	#is within [-2**55, 2**55].  To update later for other cases.
-	m=2**26
+	# To account for catastrophic annihilation when input
+	# is within [-2**55, 2**55].  To update later for other cases.
+	m = 2**26
 		
 	N = len(X)
 	Y = np.empty(N, dtype = complex)
 	# Passes through Y, defining each term
 	for k in range(N):
-	
-		#Track the large real/imaginary numbers and small 
-		#real/imaginary numbers separately to avoid losing floating points
+		# Track the large real/imaginary numbers and small 
+		# real/imaginary numbers separately to avoid losing floating points
 		big_real_sum = np.zeros(N, dtype=float)
 		small_real_sum = np.zeros(N, dtype=float)
 		big_imag_sum = np.zeros(N, dtype=float)
 		small_imag_sum = np.zeros(N, dtype=float)
 
-		
 		Twiddle = 1
-
-
 		# Twiddle should equal cmath.exp(-2*cmath.pi*kn*1j/N) in run n
 		for n in range(N):
 
+			# Put update values in "buckets" depending on the magnitude of
+			# their real and complex parts
 			val = X[n]*Twiddle
 			
 			if abs(val.real) >= m:
 				big_real_sum[n] = val.real
 			else:
 				small_real_sum[n] = val.real
-			
 
 			if abs(val.imag) >= m:
 				big_imag_sum[n] = val.imag
 			else:
 				small_imag_sum[n] = val.imag
 			
-			#Update Twiddle for next iteration: check whether we can
-			#simply make it +/-1 or +/-i and avoid floating point error  
+			# Update Twiddle for next iteration: check whether we can
+			# simply make it +/-1 or +/-i and avoid floating point error  
 			Twiddle = UpdateTwiddle(Twiddle,n,N,k)
 
 		Y[k] = Kahan(big_real_sum) + Kahan(small_real_sum) + (Kahan(big_imag_sum) + Kahan(small_imag_sum))*1j
 	return Y
 
+# IFFT expects X to be a power of two (for it to use the fast FFT algorithm).
+# N is the desired length (so it will remove excess digits)
+def IFFT(X, N = -1):
+	if N == -1:
+		N = len(X)
+	naive_IFFT = IFFT_powerOfTwo(X)
+	return naive_IFFT[:N]
+
 def IFFT_powerOfTwo(Y):
-	N = max(1, len(Y)) # length zero arrays should still be possible
+	N = max(1, len(Y))
 	X_conj = (1./N)* FFT_powerOfTwo(np.conjugate(Y))
 	X = np.conjugate(X_conj)
 	return X
 
 def UpdateTwiddle(Twiddle, index, N, multiplier):
-	# Want to set Twiddle = cmath.exp(-2*cmath.pi*(index+1)*1j/N)
+	# Want to set new Twiddle = cmath.exp(-2*cmath.pi*(index+1)*1j/N)
 	# Note: cmath.exp(-1j*cmath.pi/2) = -1j
 
 	w = cmath.exp(-2*cmath.pi*1j*multiplier/N)
@@ -143,8 +133,7 @@ def UpdateTwiddle(Twiddle, index, N, multiplier):
 		Twiddle *= w
 	return Twiddle
 
-
-#Added Kahan to sum up terms in DFT in order to reduce floating point error
+# Kahan algorithm to sum up terms in DFT to reduce floating point error
 def Kahan(V):	
 	s = 0
 	c = 0
