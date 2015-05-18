@@ -1,5 +1,8 @@
 # Inverse Laplace Transform!
 
+# Reference:
+# Den Iseger, P. (2006), "Numerical transform inversion using Gaussian quadrature", Probability in the Engineering and Informational Sciences, 20, 1-44.
+
 # Inputs: fhat - output of laplace transform on function f (fhat is a lambda function)
 #	  delta - step size
 #	  M - a power of 2, length of vector
@@ -47,8 +50,8 @@ def ILT(fhat_mat, delta, M):
 	# STEP 3 ################
 	f = np.zeros(M)
 	for l in range(M):
-		# not sure why we're off by a factor of 2
-		f[l] = 2*np.exp(a*l)*fl[l] # f[l] here is supposed to be f[l*delta] in the function
+		# The paper is off by a factor of 2, so this corrects it
+		f[l] = 2*np.exp(a*l)*fl[l] # f[l] here is f[l*delta] in the paper
 
 	return(f)
 
