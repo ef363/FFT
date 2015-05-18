@@ -65,39 +65,45 @@ def DFT(X):
 	m = 2**26
 		
 	N = len(X)
-	Y = np.empty(N, dtype = complex)
-	# Passes through Y, defining each term
+	Y=np.empty(N, dtype=complex)
+
 	for k in range(N):
-		# Track the large real/imaginary numbers and small 
-		# real/imaginary numbers separately to avoid losing floating points
-		big_real_sum = np.zeros(N, dtype=float)
-		small_real_sum = np.zeros(N, dtype=float)
-		big_imag_sum = np.zeros(N, dtype=float)
-		small_imag_sum = np.zeros(N, dtype=float)
+		Twiddle=np.zeros(N, dtype = complex)
+		Twiddle[0]=1
+		#Compute Twiddle factors; Twiddle should equal cmath.exp(-2*cmath.pi*kn*1j/N) on 
+		#k-th index
+		for n in range(1,N):
+			Twiddle[n]=UpdateTwiddle(Twiddle[n-1], n-1, N, k) 
+		
+		#temporary list to hold values before summing up to get DFT
+		val=np.multiply(Twiddle, X)
 
-		Twiddle = 1
-		# Twiddle should equal cmath.exp(-2*cmath.pi*kn*1j/N) in run n
-		for n in range(N):
+		#Track the large real/imaginary numbers and the small ones to avoid losing floating points
+		#big_real_sum=[x.real for x in val if abs(x.real) >=m]
+		#small_real_sum=[x.real for x in val if abs(x.real)<m]
+		#big_imag_sum=[x.imag for x in val if abs(x.imag) >=m]
+		#small_imag_sum=[x.imag for x in val if abs(x.imag) <m]
 
-			# Put update values in "buckets" depending on the magnitude of
-			# their real and complex parts
-			val = X[n]*Twiddle
-			
-			if abs(val.real) >= m:
-				big_real_sum[n] = val.real
+		big_real_sum=np.zeros(N, dtype=float)
+		small_real_sum=np.zeros(N, dtype=float)
+		big_imag_sum=np.zeros(N, dtype=float)
+		small_imag_sum=np.zeros(N, dtype=float)
+
+		for i in range(0,N):
+			a=val[i].real
+			b=val[i].imag
+			if abs(a) >=m:
+				big_real_sum[i]=a
 			else:
-				small_real_sum[n] = val.real
-
-			if abs(val.imag) >= m:
-				big_imag_sum[n] = val.imag
+				small_real_sum[i]=a
+			if abs(b) >=m:
+				big_imag_sum[i]=b
 			else:
-				small_imag_sum[n] = val.imag
-			
-			# Update Twiddle for next iteration: check whether we can
-			# simply make it +/-1 or +/-i and avoid floating point error  
-			Twiddle = UpdateTwiddle(Twiddle,n,N,k)
-
+				small_imag_sum[i]=b
+		
+		#Sum up to get actual DFT
 		Y[k] = Kahan(big_real_sum) + Kahan(small_real_sum) + (Kahan(big_imag_sum) + Kahan(small_imag_sum))*1j
+
 	return Y
 
 # IFFT expects X to be a power of two (for it to use the fast FFT algorithm).
