@@ -21,11 +21,11 @@ n=16
 def make_ILT_input(function, delta, M):
 	M2 = 8*M
 	a = 44./M2
-	fhat_mat = np.zeros((n/2, M2+1))
-	for k in range(M2+1):
-		for i in range(n/2):
-			s = (a+1j*lamb[i]+2*1j*np.pi*k/M2)/delta
-			fhat_mat[i,k] = np.real(function(s))
+	
+	#The term inside function(.) is the value of s	
+	fhat_mat=np.array([[np.real(function((a+1j*lamb[i]+2*1j*np.pi*k/M2)/delta)) for k in range(M2+1)] for i  in range(n/2)])
+
+
 	return fhat_mat
 
 # Performs ILT from the discretized values above (delta and M need to be the same as in above)
@@ -36,22 +36,21 @@ def ILT(fhat_mat, delta, M):
 	beta = np.array([1, 1.00000000000004, 1.00000015116847, 1.00081841700481, 1.09580332705189, 2.00687652338724, 5.94277512934943, 54.9537264520382])
 
 	# STEP 1 ################
-	fhat_vect = np.zeros(M2+1)
-	for k in range(M2+1):
-		col = fhat_mat[:,k]
-		if k==0: col0 = col
-		else: fhat_vect[k] = (2./delta)*np.dot(beta, col)
-	fhat_vect[0] = (1./delta)*np.dot(beta, np.add(col0, col))
+		
+	fhat_vect=np.array([(2./delta)*np.dot(beta, fhat_mat[:,k]) for k in range(1, M2+1)])
+	fhat_vect=np.append(np.array([(1./delta)*np.dot(beta, np.add(fhat_mat[:,0], fhat_mat[:,M2]))]), fhat_vect)
 
+		
 	# STEP 2 ################
 	# This currently only works efficiently when fl has length equal to a power of two.
 	fl = np.real(fft.IFFT(fhat_vect[:M2]))
 
+
 	# STEP 3 ################
-	f = np.zeros(M)
-	for l in range(M):
-		# The paper is off by a factor of 2, so this corrects it
-		f[l] = 2*np.exp(a*l)*fl[l] # f[l] here is f[l*delta] in the paper
+	# The paper is off by a factor of 2, and we correct it here.
+	f=np.array([2*np.exp(a*l)*fl[l] for l in range(M)])
+	
+
 
 	return(f)
 

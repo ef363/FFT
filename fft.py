@@ -68,38 +68,32 @@ def DFT(X):
 	Y=np.empty(N, dtype=complex)
 
 	for k in range(N):
-		Twiddle=np.zeros(N, dtype = complex)
-		Twiddle[0]=1
-		#Compute Twiddle factors; Twiddle should equal cmath.exp(-2*cmath.pi*kn*1j/N) on 
-		#k-th index
-		for n in range(1,N):
-			Twiddle[n]=UpdateTwiddle(Twiddle[n-1], n-1, N, k) 
-		
-		#temporary list to hold values before summing up to get DFT
-		val=np.multiply(Twiddle, X)
-
+		Twiddle=1
+	
 		#Track the large real/imaginary numbers and the small ones to avoid losing floating points
-		#big_real_sum=[x.real for x in val if abs(x.real) >=m]
-		#small_real_sum=[x.real for x in val if abs(x.real)<m]
-		#big_imag_sum=[x.imag for x in val if abs(x.imag) >=m]
-		#small_imag_sum=[x.imag for x in val if abs(x.imag) <m]
 
-		big_real_sum=np.zeros(N, dtype=float)
-		small_real_sum=np.zeros(N, dtype=float)
-		big_imag_sum=np.zeros(N, dtype=float)
-		small_imag_sum=np.zeros(N, dtype=float)
+                big_real_sum=np.zeros(N, dtype=float)
+                small_real_sum=np.zeros(N, dtype=float)
+                big_imag_sum=np.zeros(N, dtype=float)
+                small_imag_sum=np.zeros(N, dtype=float)
 
-		for i in range(0,N):
-			a=val[i].real
-			b=val[i].imag
+		for n in range(0,N):
+	
+			#temporary list to hold values before summing up to get DFT
+			val=Twiddle*X[n]
+	
+			a=val.real
+			b=val.imag
 			if abs(a) >=m:
-				big_real_sum[i]=a
+				big_real_sum[n]=a
 			else:
-				small_real_sum[i]=a
+				small_real_sum[n]=a
 			if abs(b) >=m:
-				big_imag_sum[i]=b
+				big_imag_sum[n]=b
 			else:
-				small_imag_sum[i]=b
+				small_imag_sum[n]=b
+
+			Twiddle=UpdateTwiddle(Twiddle, n, N, k)
 		
 		#Sum up to get actual DFT
 		Y[k] = Kahan(big_real_sum) + Kahan(small_real_sum) + (Kahan(big_imag_sum) + Kahan(small_imag_sum))*1j
