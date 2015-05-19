@@ -38,13 +38,24 @@ class TestFFT(unittest.TestCase):
         np.testing.assert_allclose(fft.FFT(e), np.fft.fft(e), atol=1e-10)
 
     def testCatastrophicAnnihilationFFT(self):
-	   y=[2**52,1,-2**52,1,2**52,1,-2**52,1]
+	   y=[2**53,1,-2**53,1,2**53,1,-2**53,1]
 	   np.testing.assert_allclose(fft.FFT(y), np.fft.fft(y), atol=1e-10)
 
     def testNonPowerOfTwo(self):
         y = np.array([(-1)**k for k in range(6)])
         answer = np.fft.fft(np.append(y, [0,0]))
         np.testing.assert_allclose(fft.FFT(y), answer)
+
+
+    #Note:  for this test, we need a large error tolerance because Python is unable to calculate 
+    #the first term correctly using the np.fft.fft function.  Clearly the first term in FFT is 1
+    #but Python returns 0.
+    def testCatastrophicLarge(self):
+	x=[2**53] + [0 for i in range(7)]+[-2**53]+[0 for i in range(7)]+[1]+[0 for i in range(15)]
+	x=np.array(x)
+	np.testing.assert_allclose(fft.FFT(x), np.fft.fft(x), atol=1) 
+
+
 
 #----------------------------------------------------------------------------
 class TestDFT(unittest.TestCase):
