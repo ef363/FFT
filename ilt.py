@@ -25,7 +25,6 @@ def make_ILT_input(function, delta, M):
 	#The term inside function(.) is the value of s	
 	fhat_mat=np.array([[np.real(function((a+1j*lamb[i]+2*1j*np.pi*k/M2)/delta)) for k in range(M2+1)] for i  in range(n/2)])
 
-
 	return fhat_mat
 
 # Performs ILT from the discretized values above (delta and M need to be the same as in above)
@@ -49,8 +48,6 @@ def ILT(fhat_mat, delta, M):
 	# STEP 3 ################
 	# The paper is off by a factor of 2, and we correct it here.
 	f=np.array([2*np.exp(a*l)*fl[l] for l in range(M)])
-	
-
 
 	return(f)
 
