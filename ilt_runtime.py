@@ -12,7 +12,6 @@ for i in range(max_case):
 	M = 2**i
 	fhat = lambda s: 1./(s+0.5)
 	fhat_mat = ilt.make_ILT_input(fhat, delta, M)
-#	X=np.random.uniform(-100, 100, 2**i+1)
 	t=time.clock()
 	ilt.ILT(fhat_mat, delta, M)
 	runtime[i]=time.clock() - t
